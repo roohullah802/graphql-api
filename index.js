@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import startApolloServer from "./apollo.server.js";
 import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
 import imagekitUploadApi from "./src/imagekit/uploadApi.js";
+import jwt from "jsonwebtoken";
 dotenv.config();
 connectDB("mongodb://localhost:27017/");
 const PORT = process.env.PORT || 8000;
@@ -22,7 +23,24 @@ app.use(express.json());
 app.use(
   "/graphql",
   expressMiddleware(await startApolloServer(), {
-    context: async ({ req, res }) => ({ req, res }),
+    context: async ({ req, res }) => {
+      const token = req.headers.authorization;
+
+      if (!token) {
+        return { user: null, res };
+      }
+
+      try {
+        const decode = jwt.verify(token, process.env.JWT_SECRET);
+        if (!decode) {
+          return { user: null, res };
+        }
+
+        return { user: decode, res };
+      } catch (error) {
+        return { user: null, res };
+      }
+    },
   }),
 );
 app.use("/api", imagekitUploadApi);

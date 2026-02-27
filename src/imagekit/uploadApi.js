@@ -1,5 +1,5 @@
 import express from "express";
-import { imagekit } from "./imagekit";
+import { imagekit } from "./imagekit.js";
 import dotenv from "dotenv";
 dotenv.config();
 

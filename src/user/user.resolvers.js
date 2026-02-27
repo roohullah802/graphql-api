@@ -4,12 +4,13 @@ import UserService from "./service/user.service.js";
 export const userResolvers = {
   Upload: GraphQLUpload,
   Query: {
-    getAllUsers: async () => await UserService.getAllUsers(),
+    getAllUsers: async (_, args, context) =>
+      await UserService.getAllUsers(context),
   },
   Mutation: {
-    createUser: async (_, args) => await UserService.createUser(args),
-    loginUser: async (_, args, { res }) =>
-      await UserService.loginUser(args, res),
-    uploadImage: async (_, { file }) => await UserService.uploadImage(file),
+    createUser: async () => await UserService.createUser(),
+    loginUser: async (_, args, context) =>
+      await UserService.loginUser(args, context),
+    uploadImage: async (_, args) => await UserService.saveImage(args),
   },
 };

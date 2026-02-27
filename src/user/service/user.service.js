@@ -12,8 +12,18 @@ class UserService {
     return hashedPassword;
   }
 
-  static async getAllUsers() {
-    return await User.find();
+  static async getAllUsers(context) {
+    console.log(context.user);
+
+    try {
+      if (context.user === null) {
+        throwGraphQLError("Unauthorized please login", "UNAUTHORIZED", 400);
+      }
+
+      return await User.find();
+    } catch (error) {
+      throw error;
+    }
   }
 
   static async createUser(payload) {
@@ -40,7 +50,9 @@ class UserService {
     }
   }
 
-  static async loginUser(payload, res) {
+  static async loginUser(payload, context) {
+    console.log(context.user);
+
     try {
       const { email, password } = payload;
 
@@ -64,7 +76,7 @@ class UserService {
       const data = { id: user._id, email };
       const token = jwt.sign(data, process.env.JWT_SECRET);
 
-      res.cookie("token", token, {
+      context.res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 1000 * 60 * 60 * 24 * 7,
