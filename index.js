@@ -31,7 +31,7 @@ app.use(
       }
 
       try {
-        const decode = jwt.verify(token, process.env.JWT_SECRET);
+        const decode = jwt.verify(token, process.env.ACCESS_TOKEN);
         if (!decode) {
           return { user: null, res };
         }

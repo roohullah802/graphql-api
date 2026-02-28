@@ -3,6 +3,7 @@ import { User } from "../../model/user.model.js";
 import { createHmac, randomBytes } from "node:crypto";
 import jwt from "jsonwebtoken";
 import { ImageModel } from "../../model/image.model.js";
+import { Auth } from "../../auth/auth.service.js";
 
 class UserService {
   static async #generateHash(salt, password) {
@@ -74,16 +75,17 @@ class UserService {
       }
 
       const data = { id: user._id, email };
-      const token = jwt.sign(data, process.env.JWT_SECRET);
+      const accessToken = Auth.accessToken(data);
+      const refreshToken = Auth.refreshToken(data);
 
-      context.res.cookie("token", token, {
+      context.res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        path: "/",
+        path: "/graphql",
       });
 
-      return token;
+      return accessToken;
     } catch (error) {
       throw error;
     }
